@@ -1,0 +1,30 @@
+.authGate {
+  min-height: 100vh;
+  width: 100vw;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+  background: var(--bg-color);
+  color: var(--primary-3);
+
+  img {
+    width: min(16rem, 60vw);
+  }
+
+  p {
+    max-width: 36rem;
+    color: var(--primary-2);
+  }
+
+  a {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--primary-2);
+    border-radius: 0.5rem;
+    background: var(--primary-1);
+    color: var(--primary-3);
+  }
+}

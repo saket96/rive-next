@@ -20,7 +20,7 @@ import {
 } from "@/Utils/bookmark";
 import { navigatorShare } from "@/Utils/share";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/Utils/firebase";
+import { getFirebaseAuth, isFirebaseConfigured } from "@/Utils/firebase";
 import { toast } from "sonner";
 
 const DetailPage = () => {
@@ -83,7 +83,9 @@ const DetailPage = () => {
   }, [params, id]);
 
   useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
+    if (!isFirebaseConfigured) return;
+
+    const unsubscribe = onAuthStateChanged(getFirebaseAuth(), async (user) => {
       if (user) {
         const userID = user.uid;
         setUser(userID);
@@ -93,6 +95,7 @@ const DetailPage = () => {
         setLoading(true);
       }
     });
+    return unsubscribe;
   }, []);
 
   useEffect(() => {

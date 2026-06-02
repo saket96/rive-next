@@ -29,7 +29,11 @@ Steps to get the credentials:
   NEXT_PUBLIC_TMDB_API=https://api.themoviedb.org/3
   NEXT_PUBLIC_TMDB_API_KEY=
   NEXT_PUBLIC_TMBD_IMAGE_URL=https://image.tmdb.org/t/p/original/
+  NEXT_PUBLIC_RANDOM_URL=
 ```
+
+`NEXT_PUBLIC_TMBD_IMAGE_URL` keeps the existing project spelling. Use that exact
+name in deployed environments.
 
 Steps to get TMDB API KEY
 
@@ -62,7 +66,25 @@ And if you are going to create your own website, then I would recommend to go th
 They have created a list of services, but some may have stopped working, still you will get working ones also.  
 If you do some researching, then you will find the right services here.
 
-If there are anymore env vars left, give them any random values, as they were used in dev only and not in prod.
+Use real values for the variables listed above in production. Empty or dummy
+streaming URLs will let the app build, but playback providers that depend on
+those URLs will not work.
+
+## 4. Private personal access
+
+```env
+NEXT_PUBLIC_REQUIRE_AUTH=true
+NEXT_PUBLIC_ALLOW_SIGNUP=false
+NEXT_PUBLIC_ALLOW_GOOGLE_SIGNIN=false
+NEXT_PUBLIC_PRIVATE_HOME_PATH=/search
+NEXT_PUBLIC_SITE_NAME=My Private Rive
+NEXT_PUBLIC_SITE_TAGLINE=Personal use only
+NEXT_PUBLIC_PERSONAL_USE_NOTICE=Private personal-use streaming portal
+```
+
+For a password-only private deployment, enable Email/Password in Firebase Auth
+and create allowed users manually in Firebase Console. Keep public signup and
+Google sign-in disabled unless you intentionally want to open those flows.
 
 ## **Disclaimer**
 

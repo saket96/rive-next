@@ -96,6 +96,19 @@ Rive is a cutting-edge platform for streaming movies and TV shows online. Our pr
     <img src="https://img.shields.io/badge/node.js-7c3aed?style=for-the-badge&logo=node.js&logoColor=white" alt="react official Website"/>
 </p>
 
+## **Deployment**
+
+See [DEPLOY.md](./DEPLOY.md) for required environment variables and deployment
+steps for Vercel, generic Node hosts, and Docker.
+
+## **Private Personal Deployment**
+
+This fork is configured for private, personal use: the public entry point is the
+password screen, public signup and Google sign-in are disabled by default, and
+authenticated users are sent to `/search` instead of the old homepage. See
+[DEPLOY.md](./DEPLOY.md) for Firebase email/password setup, no-ads notes, and
+how to pull updates from the original upstream repository.
+
 ## **Screenshots**
 
 Here are some screenshots on various devices
