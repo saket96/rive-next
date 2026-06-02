@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+/pnpm-lock.yaml
 /package-lock.yaml
 
 # testing
@@ -13,6 +14,9 @@
 # next.js
 /.next/
 /out/
+/public/fallback-*.js
+/public/sw.js
+/public/workbox-*.js
 
 # production
 /build
