@@ -20,7 +20,7 @@ import {
 import { navigatorShare } from "@/Utils/share";
 import Skeleton from "react-loading-skeleton";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/Utils/firebase";
+import { getFirebaseAuth, isFirebaseConfigured } from "@/Utils/firebase";
 
 const externalImageLoader = ({ src }: { src: string }) =>
   `${process.env.NEXT_PUBLIC_TMBD_IMAGE_URL}${src}`;
@@ -52,7 +52,9 @@ const HomeHero = () => {
       }
     };
     fetchData();
-    onAuthStateChanged(auth, async (user) => {
+    if (!isFirebaseConfigured) return;
+
+    const unsubscribe = onAuthStateChanged(getFirebaseAuth(), async (user) => {
       if (user) {
         const userID = user.uid;
         setUser(userID);
@@ -63,6 +65,7 @@ const HomeHero = () => {
         setLoading(true);
       }
     });
+    return unsubscribe;
   }, []);
 
   useEffect(() => {

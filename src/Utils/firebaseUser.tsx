@@ -1,4 +1,8 @@
-import { auth, db, provider } from "./firebase";
+import {
+  getFirebaseAuth,
+  getFirebaseDb,
+  getGoogleAuthProvider,
+} from "./firebase";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -21,6 +25,19 @@ import {
 } from "firebase/firestore";
 import { toast } from "sonner";
 
+const getFirebaseServices = () => {
+  try {
+    return {
+      auth: getFirebaseAuth(),
+      db: getFirebaseDb(),
+      provider: getGoogleAuthProvider(),
+    };
+  } catch (error: any) {
+    toast.error(error.message);
+    return null;
+  }
+};
+
 export const signupUserManual = async ({ username, email, password }: any) => {
   const isEmailCorrect = /\S+@\S+\.\S+/.test(email);
   if (!username || !email || !password) {
@@ -36,13 +53,18 @@ export const signupUserManual = async ({ username, email, password }: any) => {
     } else {
       const loadingToast = toast.loading("Connecting to cloud provider...");
       try {
+        const services = getFirebaseServices();
+        if (!services) {
+          toast.dismiss(loadingToast);
+          return false;
+        }
         const userCred = await createUserWithEmailAndPassword(
-          auth,
+          services.auth,
           email,
           password,
         );
         const user = userCred.user;
-        const colRef = doc(db, "users", user.uid);
+        const colRef = doc(services.db, "users", user.uid);
         await setDoc(colRef, { username: username });
         toast.dismiss(loadingToast);
         toast.success("Cloud: User created! Welcome to Rive club");
@@ -68,6 +90,11 @@ export const loginUserManual = async ({ email, password }: any) => {
 
   const loadingToast = toast.loading("Connecting to cloud provider...");
   try {
+    const services = getFirebaseServices();
+    if (!services) {
+      toast.dismiss(loadingToast);
+      return false;
+    }
     if (!email || !password) {
       // toast("Fill all fields");
       toast.dismiss(loadingToast);
@@ -80,7 +107,7 @@ export const loginUserManual = async ({ email, password }: any) => {
         toast.error("Cloud: Enter valid Email");
         return false;
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(services.auth, email, password);
         toast.dismiss(loadingToast);
         toast.success("Cloud: welcome back");
         return true;
@@ -106,7 +133,12 @@ export const loginUserManual = async ({ email, password }: any) => {
 export const loginUserGoogle = async () => {
   const loadingToast = toast.loading("Connecting to cloud provider...");
   try {
-    const result = await signInWithPopup(auth, provider);
+    const services = getFirebaseServices();
+    if (!services) {
+      toast.dismiss(loadingToast);
+      return false;
+    }
+    const result = await signInWithPopup(services.auth, services.provider);
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential?.accessToken;
     const user = result?.user;
@@ -122,7 +154,12 @@ export const loginUserGoogle = async () => {
 
 export const logoutUser = () => {
   const loadingToast = toast.loading("Connecting to cloud provider...");
-  signOut(auth)
+  const services = getFirebaseServices();
+  if (!services) {
+    toast.dismiss(loadingToast);
+    return;
+  }
+  signOut(services.auth)
     .then(() => {
       // toast("Now using browser's storage");
       toast.dismiss(loadingToast);
@@ -155,7 +192,15 @@ export const fetchFbWatchlist = async ({ userID = null }: any) => {
   const loadingToast = toast.loading("Connecting to cloud provider...");
   const userWatchlist: any = { movie: [], tv: [] };
   try {
-    const q = query(collection(db, "watchlist"), where("userID", "==", userID));
+    const services = getFirebaseServices();
+    if (!services) {
+      toast.dismiss(loadingToast);
+      return userWatchlist;
+    }
+    const q = query(
+      collection(services.db, "watchlist"),
+      where("userID", "==", userID),
+    );
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach((doc) => {
@@ -180,7 +225,15 @@ export const removeFromFbWatchlist = async ({
 }: any) => {
   const loadingToast = toast.loading("Connecting to cloud provider...");
   try {
-    const q = query(collection(db, "watchlist"), where("userID", "==", userID));
+    const services = getFirebaseServices();
+    if (!services) {
+      toast.dismiss(loadingToast);
+      return;
+    }
+    const q = query(
+      collection(services.db, "watchlist"),
+      where("userID", "==", userID),
+    );
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach(async (doc) => {
@@ -202,7 +255,14 @@ export const removeFromFbWatchlist = async ({
 };
 export const checkInFbWatchlist = async ({ userID = null, type, id }: any) => {
   try {
-    const q = query(collection(db, "watchlist"), where("userID", "==", userID));
+    const services = getFirebaseServices();
+    if (!services) {
+      return false;
+    }
+    const q = query(
+      collection(services.db, "watchlist"),
+      where("userID", "==", userID),
+    );
     const querySnapshot = await getDocs(q);
 
     for (const doc of querySnapshot.docs) {
@@ -227,7 +287,12 @@ export const addToFbWatchlist = async ({ userID = null, type, id }: any) => {
   } else {
     const loadingToast = toast.loading("Connecting to cloud provider...");
     try {
-      const docRef = await addDoc(collection(db, "watchlist"), {
+      const services = getFirebaseServices();
+      if (!services) {
+        toast.dismiss(loadingToast);
+        return;
+      }
+      const docRef = await addDoc(collection(services.db, "watchlist"), {
         type,
         id,
         userID,

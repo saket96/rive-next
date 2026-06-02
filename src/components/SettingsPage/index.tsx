@@ -5,7 +5,7 @@ import { FaGithub, FaGlobe } from "react-icons/fa";
 import { getSettings, setSettings } from "@/Utils/settings";
 import { usePathname } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/Utils/firebase";
+import { getFirebaseAuth, isFirebaseConfigured } from "@/Utils/firebase";
 import { logoutUser } from "@/Utils/firebaseUser";
 import { useRouter } from "next/navigation";
 import { fetchRandom } from "@/Utils/randomdata";
@@ -23,7 +23,12 @@ const SettingsPage = ({
   const { push } = useRouter();
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    if (!isFirebaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(getFirebaseAuth(), (user) => {
       // console.log({ user });
       if (user) {
         setUser(user);
@@ -33,6 +38,7 @@ const SettingsPage = ({
         setLoading(false);
       }
     });
+    return unsubscribe;
   }, []);
   const handleSelect = ({ type, value }: any) => {
     const prevVal = { mode, theme, ascent_color };

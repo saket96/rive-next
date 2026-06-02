@@ -13,7 +13,7 @@ import {
 } from "@/Utils/continueWatching";
 import { BsFillBookmarkXFill } from "react-icons/bs";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/Utils/firebase";
+import { getFirebaseAuth, isFirebaseConfigured } from "@/Utils/firebase";
 import NProgress from "nprogress";
 // import MoviePoster from '@/components/MoviePoster';
 
@@ -32,7 +32,9 @@ const Library = () => {
   const [user, setUser] = useState<any>();
 
   useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
+    if (!isFirebaseConfigured) return;
+
+    const unsubscribe = onAuthStateChanged(getFirebaseAuth(), async (user) => {
       if (user) {
         const userID = user.uid;
         setUser(userID);
@@ -42,6 +44,7 @@ const Library = () => {
         // setLoading(true);
       }
     });
+    return unsubscribe;
   }, []);
 
   useEffect(() => {
