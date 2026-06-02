@@ -10,6 +10,8 @@ import { logoutUser } from "@/Utils/firebaseUser";
 import { useRouter } from "next/navigation";
 import { fetchRandom } from "@/Utils/randomdata";
 
+const allowSignup = process.env.NEXT_PUBLIC_ALLOW_SIGNUP === "true";
+
 const SettingsPage = ({
   mode,
   theme,
@@ -76,9 +78,9 @@ const SettingsPage = ({
           <div className={styles.group}>
             <>
               <Link href="/login">Login</Link>
-              <Link href="/signup">Signup</Link>
+              {allowSignup ? <Link href="/signup">Signup</Link> : null}
             </>
-            <h4 className={styles.profileCard}>Login to sync to cloud</h4>
+            <h4 className={styles.profileCard}>Login for private access</h4>
           </div>
         )}
         <h1>Appearence</h1>

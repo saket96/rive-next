@@ -101,6 +101,14 @@ Rive is a cutting-edge platform for streaming movies and TV shows online. Our pr
 See [DEPLOY.md](./DEPLOY.md) for required environment variables and deployment
 steps for Vercel, generic Node hosts, and Docker.
 
+## **Private Personal Deployment**
+
+This fork is configured for private, personal use: the public entry point is the
+password screen, public signup and Google sign-in are disabled by default, and
+authenticated users are sent to `/search` instead of the old homepage. See
+[DEPLOY.md](./DEPLOY.md) for Firebase email/password setup, no-ads notes, and
+how to pull updates from the original upstream repository.
+
 ## **Screenshots**
 
 Here are some screenshots on various devices

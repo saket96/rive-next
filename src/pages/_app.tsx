@@ -10,9 +10,14 @@ import { useState, useEffect } from "react";
 import NProgress from "nprogress";
 import "@/styles/nprogress.scss";
 import "react-loading-skeleton/dist/skeleton.css";
+import AuthGate from "@/components/AuthGate";
+import { useRouter } from "next/router";
 
 export default function App({ Component, pageProps }: any) {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const isAuthRoute =
+    router.pathname === "/login" || router.pathname === "/signup";
   NProgress.configure({ showSpinner: false });
   // NProgress.configure({
   //   template: '<div class="bar" role="bar"><div class="peg"></div></div>'
@@ -35,8 +40,14 @@ export default function App({ Component, pageProps }: any) {
   return (
     <>
       <Head>
-        <title>Rive</title>
-        <meta name="description" content="Your Personal Streaming Oasis" />
+        <title>{process.env.NEXT_PUBLIC_SITE_NAME || "Rive"}</title>
+        <meta
+          name="description"
+          content={
+            process.env.NEXT_PUBLIC_PERSONAL_USE_NOTICE ||
+            "Private personal-use streaming portal"
+          }
+        />
         <meta
           name="keywords"
           content="movie, streaming, tv, rive, stream. movie app, tv shows, movie download"
@@ -59,7 +70,7 @@ export default function App({ Component, pageProps }: any) {
         <meta name="msapplication-tap-highlight" content="no" />
         <link rel="shortcut icon" href="/images/logo512.png" />
       </Head>
-      <Layout>
+      <AuthGate>
         <Toaster
           toastOptions={{
             className: "sooner-toast-desktop",
@@ -73,8 +84,14 @@ export default function App({ Component, pageProps }: any) {
           position="top-center"
         />
         <Tooltip id="tooltip" className="react-tooltip" />
-        <Component {...pageProps} />
-      </Layout>
+        {isAuthRoute ? (
+          <Component {...pageProps} />
+        ) : (
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        )}
+      </AuthGate>
     </>
   );
 }

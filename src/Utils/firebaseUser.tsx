@@ -5,13 +5,9 @@ import {
 } from "./firebase";
 import {
   createUserWithEmailAndPassword,
-  onAuthStateChanged,
-  sendEmailVerification,
   signInWithEmailAndPassword,
-  sendPasswordResetEmail,
   signOut,
   signInWithPopup,
-  GoogleAuthProvider,
 } from "firebase/auth";
 import {
   doc,
@@ -24,6 +20,10 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { toast } from "sonner";
+
+const allowSignup = process.env.NEXT_PUBLIC_ALLOW_SIGNUP === "true";
+const allowGoogleSignIn =
+  process.env.NEXT_PUBLIC_ALLOW_GOOGLE_SIGNIN === "true";
 
 const getFirebaseServices = () => {
   try {
@@ -39,15 +39,17 @@ const getFirebaseServices = () => {
 };
 
 export const signupUserManual = async ({ username, email, password }: any) => {
+  if (!allowSignup) {
+    toast.error("Private access is enabled. Create users in Firebase Console.");
+    return false;
+  }
+
   const isEmailCorrect = /\S+@\S+\.\S+/.test(email);
   if (!username || !email || !password) {
-    // toast.dismiss(loadingToast);
     toast.error("Fill all the fields");
     return false;
   } else {
     if (!isEmailCorrect) {
-      // toast("Please enter a valid email");
-      // toast.dismiss(loadingToast);
       toast.error("Cloud: Enter valid Email");
       return false;
     } else {
@@ -82,7 +84,6 @@ export const signupUserManual = async ({ username, email, password }: any) => {
       }
     }
   }
-  // toast.dismiss(loadingToast);
 };
 
 export const loginUserManual = async ({ email, password }: any) => {
@@ -96,13 +97,11 @@ export const loginUserManual = async ({ email, password }: any) => {
       return false;
     }
     if (!email || !password) {
-      // toast("Fill all fields");
       toast.dismiss(loadingToast);
       toast.error("Some required fields are empty!");
       return false;
     } else {
       if (!isEmailCorrect) {
-        // toast("Please enter a valid email");
         toast.dismiss(loadingToast);
         toast.error("Cloud: Enter valid Email");
         return false;
@@ -115,22 +114,24 @@ export const loginUserManual = async ({ email, password }: any) => {
     }
   } catch (error: any) {
     if (error.message.includes("not-found")) {
-      // toast("user not found, signup first");
       toast.dismiss(loadingToast);
-      toast.error("Cloud: user not found, signup first");
+      toast.error("Cloud: user not found, ask the site owner for access");
     } else if (error.message.includes("wrong-password")) {
-      // toast("incorrect password");
       toast.dismiss(loadingToast);
       toast.error("Cloud: Incorrect password");
     }
-    // toast("incorrect password");
     toast.dismiss(loadingToast);
     toast.error(`${error.message}`);
-    // toast(error.message);
     return false;
   }
 };
+
 export const loginUserGoogle = async () => {
+  if (!allowGoogleSignIn) {
+    toast.error("Google sign-in is disabled for this private deployment.");
+    return false;
+  }
+
   const loadingToast = toast.loading("Connecting to cloud provider...");
   try {
     const services = getFirebaseServices();
@@ -139,8 +140,6 @@ export const loginUserGoogle = async () => {
       return false;
     }
     const result = await signInWithPopup(services.auth, services.provider);
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    const token = credential?.accessToken;
     const user = result?.user;
     toast.dismiss(loadingToast);
     toast.success(`Cloud: welcome ${user.displayName}`);
@@ -161,7 +160,6 @@ export const logoutUser = () => {
   }
   signOut(services.auth)
     .then(() => {
-      // toast("Now using browser's storage");
       toast.dismiss(loadingToast);
       toast.success("Cloud : Will be missing you!");
     })
@@ -171,22 +169,6 @@ export const logoutUser = () => {
       toast.error(error.message);
     });
 };
-
-// export const resetPassword = ({ email }: any) => {
-//   if (email) {
-//     sendPasswordResetEmail(auth, email, {
-//       url: `/login?email=${email}`,
-//     })
-//       .then(() => {
-//         toast("check your email for further process");
-//       })
-//       .catch((error) => {
-//         toast(error.message);
-//       });
-//   } else {
-//     toast("Provide the email associated with the account");
-//   }
-// };
 
 export const fetchFbWatchlist = async ({ userID = null }: any) => {
   const loadingToast = toast.loading("Connecting to cloud provider...");
@@ -209,10 +191,9 @@ export const fetchFbWatchlist = async ({ userID = null }: any) => {
     toast.dismiss(loadingToast);
     toast.success("Watchlist fetched successfully");
   } catch (error) {
-    // Dismiss loading toast and show error toast
     toast.dismiss(loadingToast);
     toast.error("Error fetching watchlist");
-    throw error; // Re-throw the error for handling upstream if needed
+    throw error;
   }
 
   return userWatchlist;
@@ -241,18 +222,17 @@ export const removeFromFbWatchlist = async ({
       if (data.type == type && data.id == id) {
         const docRef = doc.ref;
         await deleteDoc(docRef);
-        // id removed
       }
     });
     toast.dismiss(loadingToast);
     toast.success("Watchlist updated successfully");
   } catch (error) {
-    // Dismiss loading toast and show error toast
     toast.dismiss(loadingToast);
     toast.error("Error updating watchlist");
-    throw error; // Re-throw the error for handling upstream if needed
+    throw error;
   }
 };
+
 export const checkInFbWatchlist = async ({ userID = null, type, id }: any) => {
   try {
     const services = getFirebaseServices();
@@ -277,9 +257,9 @@ export const checkInFbWatchlist = async ({ userID = null, type, id }: any) => {
   }
   return false;
 };
+
 export const addToFbWatchlist = async ({ userID = null, type, id }: any) => {
   if (userID === null) {
-    // toast.dismiss(loadingToast);
     toast.error("Error updating watchlist");
     return toast.error("Try again");
   } else if (await checkInFbWatchlist({ userID, type, id })) {
@@ -292,7 +272,7 @@ export const addToFbWatchlist = async ({ userID = null, type, id }: any) => {
         toast.dismiss(loadingToast);
         return;
       }
-      const docRef = await addDoc(collection(services.db, "watchlist"), {
+      await addDoc(collection(services.db, "watchlist"), {
         type,
         id,
         userID,
@@ -300,10 +280,9 @@ export const addToFbWatchlist = async ({ userID = null, type, id }: any) => {
       toast.dismiss(loadingToast);
       toast.success("Watchlist updated successfully");
     } catch (error) {
-      // Dismiss loading toast and show error toast
       toast.dismiss(loadingToast);
       toast.error("Error updating watchlist");
-      throw error; // Re-throw the error for handling upstream if needed
+      throw error;
     }
   }
 };

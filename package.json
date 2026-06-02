@@ -11,7 +11,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky install || true"
+    "prepare": "husky install || true",
+    "sync:upstream": "bash scripts/sync-upstream.sh"
   },
   "dependencies": {
     "axios": "^1.6.8",

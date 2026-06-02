@@ -1,20 +1,45 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "@/styles/Settings.module.scss";
 import Link from "next/link";
 import { signupUserManual } from "@/Utils/firebaseUser";
 import { useRouter } from "next/navigation";
 
+const allowSignup = process.env.NEXT_PUBLIC_ALLOW_SIGNUP === "true";
+
 const SignupPage = () => {
-  const [username, setUsername] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { push } = useRouter();
+
   const handleFormSubmission = async (e: any) => {
     e.preventDefault();
     if (await signupUserManual({ username, email, password })) {
       push("/settings");
     }
   };
+
+  if (!allowSignup) {
+    return (
+      <div className={`${styles.settingsPage} ${styles.authPage}`}>
+        <div className={styles.logo}>
+          <img src="/images/logo.svg" alt="logo" />
+          <p>Private Streaming Oasis</p>
+        </div>
+        <div className={styles.settings}>
+          <h1>Signup disabled</h1>
+          <p className={styles.privateNote}>
+            This deployment is private. Create email/password users in Firebase
+            Console, then share those credentials only with allowed viewers.
+          </p>
+          <Link href="/login" className={styles.highlight}>
+            Back to login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`${styles.settingsPage} ${styles.authPage}`}>
       <div className={styles.logo}>
