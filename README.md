@@ -96,6 +96,11 @@ Rive is a cutting-edge platform for streaming movies and TV shows online. Our pr
     <img src="https://img.shields.io/badge/node.js-7c3aed?style=for-the-badge&logo=node.js&logoColor=white" alt="react official Website"/>
 </p>
 
+## **Deployment**
+
+See [DEPLOY.md](./DEPLOY.md) for required environment variables and deployment
+steps for Vercel, generic Node hosts, and Docker.
+
 ## **Screenshots**
 
 Here are some screenshots on various devices

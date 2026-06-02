@@ -29,7 +29,11 @@ Steps to get the credentials:
   NEXT_PUBLIC_TMDB_API=https://api.themoviedb.org/3
   NEXT_PUBLIC_TMDB_API_KEY=
   NEXT_PUBLIC_TMBD_IMAGE_URL=https://image.tmdb.org/t/p/original/
+  NEXT_PUBLIC_RANDOM_URL=
 ```
+
+`NEXT_PUBLIC_TMBD_IMAGE_URL` keeps the existing project spelling. Use that exact
+name in deployed environments.
 
 Steps to get TMDB API KEY
 
